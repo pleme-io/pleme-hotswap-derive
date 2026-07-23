@@ -1,0 +1,13 @@
+[package]
+name = "pleme-hotswap"
+version.workspace = true
+description = "Runtime types for pleme-hotswap-derive's #[derive(HotSwap)]: HotSwapClass, SwapDecision, the HotSwapClassifier trait. Depends on nothing beyond std -- consumers reference these types even before the derive macro itself is implemented (see the sibling pleme-hotswap-derive crate's compile_error!() stub and README.md)."
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+
+[dev-dependencies]

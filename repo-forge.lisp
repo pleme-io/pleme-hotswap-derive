@@ -1,0 +1,4 @@
+(defrepo pleme-hotswap-derive
+  :description "Per-field compile-time-exhaustive hot-swap-safety classification for shikumi TieredConfig structs -- #[derive(HotSwap)] with #[hot_swap] / #[restart_required(reason=\"...\")] tagging, per theory/CALHA.md SS4/SS6.1/SS6.2. The derive macro itself is NOT yet implemented (it needs a real, non-trivial extension to tatara-rust-ast's PerFieldDeriveSpec emitter -- exhaustive multi-tag dispatch + attribute-argument extraction + compile_error!() on an untagged field -- confirmed to touch ~13 files there, deliberately not rushed). This repo ships the real, versioned target API (HotSwapClass, SwapDecision, HotSwapClassifier) plus a derive entry point that fails loudly (compile_error!()) rather than silently doing the wrong thing."
+  :kind :rust-library
+  :visibility :public)

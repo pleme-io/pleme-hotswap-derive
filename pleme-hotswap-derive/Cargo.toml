@@ -1,0 +1,20 @@
+[package]
+name = "pleme-hotswap-derive"
+version.workspace = true
+description = "Per-field compile-time-exhaustive hot-swap-safety classification for shikumi TieredConfig structs. #[derive(HotSwap)] is a documented, deliberate compile_error!() stub -- see README.md."
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = { version = "2", features = ["full"] }
+quote = "1"
+proc-macro2 = "1"
+
+[dev-dependencies]
+trybuild = "1"

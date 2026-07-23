@@ -1,0 +1,7 @@
+error: #[derive(HotSwap)] on `Config` is not yet implemented. See https://github.com/pleme-io/pleme-hotswap-derive#status and theory/CALHA.md SS4/SS6.1/SS6.2 in pleme-io/theory for the design and why this refuses to compile instead of silently under-classifying an untagged field.
+ --> tests/trybuild/derive_refuses.rs:3:10
+  |
+3 | #[derive(HotSwap)]
+  |          ^^^^^^^
+  |
+  = note: this error originates in the derive macro `HotSwap` (in Nightly builds, run with -Z macro-backtrace for more info)
