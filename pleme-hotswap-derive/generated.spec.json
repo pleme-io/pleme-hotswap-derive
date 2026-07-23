@@ -1,0 +1,30 @@
+{
+  "trait_name": "HotSwap",
+  "target": "named-struct",
+  "trait_ref": "HotSwapClassifier",
+  "per_field_template": "",
+  "field_tag": {
+    "tags": [
+      {
+        "name": "hot_swap",
+        "aggregate_const_entry": "(stringify!(#field_name), HotSwapClass::Free),",
+        "aggregate_stmt": ""
+      },
+      {
+        "name": "restart_required",
+        "required_args": [
+          "reason"
+        ],
+        "aggregate_const_entry": "(stringify!(#field_name), HotSwapClass::RequiresRestart { reason: #reason }),",
+        "aggregate_stmt": "if self.#field_name != new.#field_name { reasons.push(#reason); }"
+      }
+    ],
+    "exhaustive": true,
+    "aggregate": {
+      "const_signature": "const FIELD_CLASSES: &'static [(&'static str, HotSwapClass)] = ",
+      "method_signature": "fn classify_change(&self, new: &Self) -> SwapDecision",
+      "method_setup": "let mut reasons: Vec<&'static str> = Vec::new();",
+      "method_return": "if reasons.is_empty() { SwapDecision::Free } else { SwapDecision::RequiresRestart(reasons) }"
+    }
+  }
+}

@@ -4,39 +4,38 @@
 
 ## Status (tier-honest, never rounded up)
 
-**The derive macro itself is a deliberate `compile_error!()` stub, not an
-implementation.** `#[derive(HotSwap)]` on any struct fails to compile, with
-a message pointing here. This is intentional, verified behavior (a
-`trybuild` test proves it), not a placeholder that got shipped by mistake.
+**The derive macro is real and working.** `#[derive(HotSwap)]` generates a
+`pleme_hotswap::HotSwapClassifier` impl -- one `const FIELD_CLASSES` +
+one `classify_change` method spanning every field -- from a struct where
+each field carries exactly one of `#[hot_swap]` / `#[restart_required(reason
+= "...")]`. Both safety guarantees are real and verified end to end, not
+just claimed:
 
-Why: the real implementation needs a materially larger extension of
-`tatara-rust-ast`'s `PerFieldDeriveSpec` emitter than "add one field" —
-multi-tag dispatch (today's `field_attribute` is single-tag, opt-in-only),
-attribute-argument extraction (reading a `reason = "..."` string — today's
-emitter has no path for this at all), and real exhaustiveness enforcement (a
-`compile_error!()` when a field carries none of the declared tags — today's
-emitter silently *drops* an untagged field from the generated impl, which is
-the opposite of the safety guarantee this design needs). Confirmed by direct
-source read to touch ~13 files in `tatara-rust-ast`. Shipping a working
-single-tag stand-in instead was considered and rejected: it would silently
-produce **no decision at all** for an unremembered field's change, which is
-worse than either real arm (`Free` swaps it, `RequiresRestart` forces a safe
-restart) — a macro that compiles clean but is quietly unsafe is worse than
-one that refuses to compile.
+- **Exhaustiveness** -- an untagged field is a `compile_error!()`, not a
+  silently-dropped field (`tests/trybuild/untagged_field.rs`).
+- **Uniqueness** -- a field carrying both tags is also a `compile_error!()`
+  (`tests/trybuild/conflicting_tags.rs`).
+- **Correctness** -- `tests/derive_works.rs` applies the derive to a real
+  two-field struct and proves `FIELD_CLASSES` introspection plus
+  `classify_change` across all four scenarios (no change / only the Free
+  field changed / only the restart-required field changed / both changed).
 
-**What IS real here today:**
+Generated, not hand-written: the derive's `src/lib.rs` is emitted by
+`tatara-rust-ast`'s `PerFieldDeriveSpec` (`field_tag`'s aggregate mode,
+`tatara-rust-ast @ 196e76f`) via the `gen/` crate in this workspace
+(`cargo run -p pleme-hotswap-gen`, run from the workspace root). The exact
+spec used is committed alongside the generated output at
+`pleme-hotswap-derive/generated.spec.json` for auditability and
+regeneration -- per the org's persist-the-spec-next-to-the-artifact
+convention, `git diff` after a forced re-render proves the generator is
+deterministic. **Do not hand-edit `pleme-hotswap-derive/src/lib.rs`** --
+regenerate it from the spec in `gen/src/main.rs` instead.
 
-- `pleme-hotswap` — the runtime types (`HotSwapClass`, `SwapDecision`, the
-  `HotSwapClassifier` trait), stable and buildable, so downstream design
-  (including [`calha`](https://github.com/pleme-io/calha), which already
-  depends on this shape) can be written against them ahead of the derive
-  landing.
-- `pleme-hotswap-derive` — the proc-macro crate, compiles clean, and its
-  `compile_error!()` refusal is itself tested (`cargo test -p
-  pleme-hotswap-derive`, a `trybuild` fixture).
-
-**Next step, if picked up:** the `tatara-rust-ast` `PerFieldDeriveSpec`
-extension named above — not started here.
+**What's still not done:** `shikumi::hotswap` (the `ArcSwap`-backed
+hot-swap config store + `Validate` trait this derive's output is meant to
+feed into, per `theory/CALHA.md` §6.3) remains unbuilt. This crate proves
+the classification half of the design; the live config-store half is a
+separate, further increment.
 
 ## Building
 
@@ -44,6 +43,15 @@ extension named above — not started here.
 cargo build --workspace --all-targets
 cargo test --workspace
 ```
+
+## Regenerating the derive
+
+```bash
+cargo run -p pleme-hotswap-gen
+git diff pleme-hotswap-derive/src/lib.rs pleme-hotswap-derive/generated.spec.json
+```
+
+A clean diff after a forced re-render is the determinism proof.
 
 ## License
 

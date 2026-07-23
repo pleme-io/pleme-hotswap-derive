@@ -1,7 +1,7 @@
 [package]
 name = "pleme-hotswap-derive"
 version.workspace = true
-description = "Per-field compile-time-exhaustive hot-swap-safety classification for shikumi TieredConfig structs. #[derive(HotSwap)] is a documented, deliberate compile_error!() stub -- see README.md."
+description = "Per-field compile-time-exhaustive hot-swap-safety classification for shikumi TieredConfig structs. #[derive(HotSwap)] generates an impl of pleme_hotswap::HotSwapClassifier -- see README.md."
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
@@ -18,3 +18,4 @@ proc-macro2 = "1"
 
 [dev-dependencies]
 trybuild = "1"
+pleme-hotswap = { path = "../pleme-hotswap" }

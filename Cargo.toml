@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["pleme-hotswap", "pleme-hotswap-derive"]
+members = ["pleme-hotswap", "pleme-hotswap-derive", "gen"]
 
 [workspace.package]
 version = "0.1.0"

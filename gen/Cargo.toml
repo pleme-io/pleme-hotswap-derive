@@ -1,0 +1,18 @@
+[package]
+name = "pleme-hotswap-gen"
+version.workspace = true
+description = "Generator: PerFieldDeriveSpec -> pleme-hotswap-derive/src/lib.rs. Not published; run via `cargo run -p pleme-hotswap-gen` to regenerate."
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+tatara-rust-ast = { git = "https://github.com/pleme-io/tatara-rust-ast", rev = "196e76f" }
+tatara-rust-derive = { git = "https://github.com/pleme-io/tatara-rust-ast", rev = "196e76f" }
+serde_json = "1"
+
+[lints]
+workspace = true

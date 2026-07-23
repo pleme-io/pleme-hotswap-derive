@@ -1,0 +1,7 @@
+error: field `bind_addr` carries more than one hot-swap-style tag (hot_swap, restart_required) -- exactly one is required
+ --> tests/trybuild/conflicting_tags.rs:6:10
+  |
+6 | #[derive(HotSwap)]
+  |          ^^^^^^^
+  |
+  = note: this error originates in the derive macro `HotSwap` (in Nightly builds, run with -Z macro-backtrace for more info)

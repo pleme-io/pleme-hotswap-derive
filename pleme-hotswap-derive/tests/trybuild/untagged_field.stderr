@@ -1,0 +1,7 @@
+error: field `bind_addr` must carry exactly one of: hot_swap, restart_required
+  --> tests/trybuild/untagged_field.rs:11:10
+   |
+11 | #[derive(HotSwap)]
+   |          ^^^^^^^
+   |
+   = note: this error originates in the derive macro `HotSwap` (in Nightly builds, run with -Z macro-backtrace for more info)
