@@ -1,31 +1,44 @@
 name: ci
+
+# Thin shim onto substrate's reusable cargo-ci.yml — the fleet standard.
+#
+# REPLACED a hand-written matrix job whose last step handed
+# `secrets.CARGO_REGISTRY_TOKEN` to a registry-upload command with NO `if:`
+# guard of any kind, in a workflow triggered on `pull_request` as well as
+# push-to-main, across a `macos-15` + `ubuntu-24.04` matrix. So the registry
+# token was reachable from every pull-request run, and a main push attempted
+# the upload twice. It happened never to succeed only because this repo's root
+# Cargo.toml is a bare `[workspace]` with no `[package]` — luck, not a control,
+# and luck that ends the day someone adds one.
+#
+# Releasing now lives where every sibling puts it: auto-release.yml, a shim
+# over rust-auto-release.yml, which runs on main only and keeps the token in
+# one place.
+#
+# Two other defects the migration closes, the same ones found in the eight
+# repos converted from this identical template on 2026-08-01 (arnes, promessa,
+# remessa, repo-forge, tansa, zuihitsu, engenho-promessa-controllers,
+# gaveta-client): no git credentials for private pleme-io deps during
+# `nix flake check`, and a hardcoded public runner where the reusable resolves
+# the runner by repo visibility.
+#
+# Test coverage goes UP: the reusable defaults to
+# `--workspace --all-features --no-fail-fast`; the old job passed a bare
+# `--workspace`.
+
 on:
   push:
     branches:
-    - main
+      - main
   pull_request:
     branches:
-    - main
+      - main
   workflow_dispatch: {}
+
+permissions:
+  contents: read
+
 jobs:
-  build:
-    name: build
-    strategy:
-      matrix:
-        os:
-        - macos-15
-        - ubuntu-24.04
-    runs-on: ${{ matrix.os }}
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Install Nix
-      uses: DeterminateSystems/nix-installer-action@main
-    - name: Flake check
-      run: nix flake check
-    - name: cargo fmt
-      run: cargo fmt --all -- --check
-    - name: cargo test
-      run: cargo test --workspace
-    - name: Publish to crates.io
-      run: cargo publish --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+  check:
+    uses: pleme-io/substrate/.github/workflows/cargo-ci.yml@main
+    secrets: inherit
