@@ -187,8 +187,9 @@ checksum = "c3a6bfce3d99adfa72d24750a61f782f3036a81e7f86d8841ee1326deaebd171"
 
 [[package]]
 name = "tatara-rust-ast"
-version = "0.1.4"
-source = "git+https://github.com/pleme-io/tatara-rust-ast?rev=196e76f#196e76fa07101be02dbea87db15b59f7f457c248"
+version = "0.1.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7356fa765ed70430bcb40e9e6b664288037899df78b4e6c01237687542e53a2f"
 dependencies = [
  "indexmap",
  "proc-macro2",
@@ -201,8 +202,9 @@ dependencies = [
 
 [[package]]
 name = "tatara-rust-derive"
-version = "0.1.4"
-source = "git+https://github.com/pleme-io/tatara-rust-ast?rev=196e76f#196e76fa07101be02dbea87db15b59f7f457c248"
+version = "0.1.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cff52f44a911b22ed585f2f9856211103014d6ec08344b42191b21562025a284"
 dependencies = [
  "indexmap",
  "prettyplease",
