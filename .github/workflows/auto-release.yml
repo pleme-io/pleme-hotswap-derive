@@ -1,27 +1,11 @@
 name: auto-release
 
-# Three-line consumer shim. Every push to main runs substrate's Rust-workspace
-# auto-release pipeline (bump workspace version → commit → tag → push →
-# ship each member to crates.io in dependency order).
-#
-# NEW here, and it is the other half of a fix rather than an addition: this
-# repo used to run the registry upload from inside ci.yml, on a step with no
-# `if:` guard, in a workflow that also triggers on `pull_request`. Moving it
-# here confines `CARGO_REGISTRY_TOKEN` to main-branch runs and to one file,
-# which is the entire point of the fleet pattern.
 on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      bump-type:
-        description: "patch | minor | major"
-        required: false
-        default: patch
 
 jobs:
   release:
-    uses: pleme-io/substrate/.github/workflows/rust-auto-release.yml@main
-    with:
-      bump-type: ${{ inputs.bump-type || 'patch' }}
+    uses: pleme-io/substrate/.github/workflows/cargo-auto-release.yml@main
     secrets: inherit
