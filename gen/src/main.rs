@@ -98,8 +98,7 @@ fn main() {
     std::fs::write(&lib_rs_path, lib_rs).expect("write generated src/lib.rs");
     println!("wrote {}", lib_rs_path.display());
 
-    let spec_json =
-        serde_json::to_string_pretty(&spec).expect("PerFieldDeriveSpec must serialize");
+    let spec_json = serde_json::to_string_pretty(&spec).expect("PerFieldDeriveSpec must serialize");
     let spec_path = derive_crate_dir.join("generated.spec.json");
     std::fs::write(&spec_path, format!("{spec_json}\n")).expect("write generated.spec.json");
     println!("wrote {}", spec_path.display());

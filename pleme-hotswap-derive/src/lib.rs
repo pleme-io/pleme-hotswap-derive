@@ -8,14 +8,17 @@ pub fn derive_hot_swap(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let self_name = &input.ident;
     let fields = match &input.data {
-        Data::Struct(DataStruct { fields: Fields::Named(named), .. }) => &named.named,
+        Data::Struct(DataStruct {
+            fields: Fields::Named(named),
+            ..
+        }) => &named.named,
         _ => {
             return syn::Error::new_spanned(
-                    self_name,
-                    "PerFieldDerive requires a named-fields struct",
-                )
-                .to_compile_error()
-                .into();
+                self_name,
+                "PerFieldDerive requires a named-fields struct",
+            )
+            .to_compile_error()
+            .into();
         }
     };
     const TAG_NAMES: &[&str] = &["hot_swap", "restart_required"];
@@ -32,44 +35,35 @@ pub fn derive_hot_swap(input: TokenStream) -> TokenStream {
         match matched.len() {
             0 => {
                 let msg = format!(
-                    "field `{}` must carry exactly one of: {}", field_name, ["hot_swap",
-                    "restart_required"].join(", "),
+                    "field `{}` must carry exactly one of: {}",
+                    field_name,
+                    ["hot_swap", "restart_required"].join(", "),
                 );
-                method_stmts
-                    .push(
-                        quote::quote! {
-                            compile_error!(# msg);
-                        },
-                    );
+                method_stmts.push(quote::quote! {
+                    compile_error!(# msg);
+                });
             }
             1 => {
                 let attr = matched[0];
                 if attr.path().is_ident(stringify!(hot_swap)) {
-                    const_entries
-                        .push(
-                            quote::quote! {
-                                (stringify!(# field_name), HotSwapClass::Free),
-                            },
-                        );
+                    const_entries.push(quote::quote! {
+                        (stringify!(# field_name), HotSwapClass::Free),
+                    });
                     method_stmts.push(quote::quote! {});
                 } else if attr.path().is_ident(stringify!(restart_required)) {
                     let mut reason: Option<syn::LitStr> = None;
-                    let parse_result = attr
-                        .parse_nested_meta(|meta| {
-                            if meta.path.is_ident("reason") {
-                                reason = Some(meta.value()?.parse()?);
-                                return Ok(());
-                            }
-                            Ok(())
-                        });
+                    let parse_result = attr.parse_nested_meta(|meta| {
+                        if meta.path.is_ident("reason") {
+                            reason = Some(meta.value()?.parse()?);
+                            return Ok(());
+                        }
+                        Ok(())
+                    });
                     if let Err(e) = parse_result {
                         let msg = e.to_string();
-                        method_stmts
-                            .push(
-                                quote::quote! {
-                                    compile_error!(# msg);
-                                },
-                            );
+                        method_stmts.push(quote::quote! {
+                            compile_error!(# msg);
+                        });
                     } else {
                         let mut all_present = true;
                         let reason = match reason {
@@ -80,31 +74,22 @@ pub fn derive_hot_swap(input: TokenStream) -> TokenStream {
                             }
                         };
                         if all_present {
-                            const_entries
-                                .push(
-                                    quote::quote! {
-                                        (stringify!(# field_name), HotSwapClass::RequiresRestart {
-                                        reason : # reason }),
-                                    },
-                                );
-                            method_stmts
-                                .push(
-                                    quote::quote! {
-                                        if self.# field_name != new.# field_name { reasons.push(#
-                                        reason); }
-                                    },
-                                );
+                            const_entries.push(quote::quote! {
+                                (stringify!(# field_name), HotSwapClass::RequiresRestart {
+                                reason : # reason }),
+                            });
+                            method_stmts.push(quote::quote! {
+                                if self.# field_name != new.# field_name { reasons.push(#
+                                reason); }
+                            });
                         } else {
                             let msg = format!(
                                 "#[{}] on field `{}` is missing a required argument",
                                 "restart_required", field_name,
                             );
-                            method_stmts
-                                .push(
-                                    quote::quote! {
-                                        compile_error!(# msg);
-                                    },
-                                );
+                            method_stmts.push(quote::quote! {
+                                compile_error!(# msg);
+                            });
                         }
                     }
                 } else {
@@ -114,52 +99,46 @@ pub fn derive_hot_swap(input: TokenStream) -> TokenStream {
             _ => {
                 let msg = format!(
                     "field `{}` carries more than one hot-swap-style tag ({}) -- exactly one is required",
-                    field_name, matched.iter().filter_map(| a | a.path().get_ident())
-                    .map(| i | i.to_string()).collect:: < Vec < _ >> ().join(", "),
+                    field_name,
+                    matched
+                        .iter()
+                        .filter_map(|a| a.path().get_ident())
+                        .map(|i| i.to_string())
+                        .collect::<Vec<_>>()
+                        .join(", "),
                 );
-                method_stmts
-                    .push(
-                        quote::quote! {
-                            compile_error!(# msg);
-                        },
-                    );
+                method_stmts.push(quote::quote! {
+                    compile_error!(# msg);
+                });
             }
         }
     }
     let const_array = {
-        let bracket_group = proc_macro2::TokenTree::Group(
-            proc_macro2::Group::new(
-                proc_macro2::Delimiter::Bracket,
-                {
-                    let mut ts = proc_macro2::TokenStream::new();
-                    for e in &const_entries {
-                        ts.extend(e.clone());
-                    }
-                    ts
-                },
-            ),
-        );
+        let bracket_group = proc_macro2::TokenTree::Group(proc_macro2::Group::new(
+            proc_macro2::Delimiter::Bracket,
+            {
+                let mut ts = proc_macro2::TokenStream::new();
+                for e in &const_entries {
+                    ts.extend(e.clone());
+                }
+                ts
+            },
+        ));
         let mut ts = proc_macro2::TokenStream::new();
-        ts.extend(
-            std::iter::once(
-                proc_macro2::TokenTree::Punct(
-                    proc_macro2::Punct::new('&', proc_macro2::Spacing::Alone),
-                ),
-            ),
-        );
+        ts.extend(std::iter::once(proc_macro2::TokenTree::Punct(
+            proc_macro2::Punct::new('&', proc_macro2::Spacing::Alone),
+        )));
         ts.extend(std::iter::once(bracket_group));
         ts
     };
-    let method_body = proc_macro2::TokenTree::Group(
-        proc_macro2::Group::new(
-            proc_macro2::Delimiter::Brace,
-            quote::quote! {
-                let mut reasons : Vec <&'static str > = Vec::new(); # (# method_stmts) *
-                if reasons.is_empty() { SwapDecision::Free } else {
-                SwapDecision::RequiresRestart(reasons) }
-            },
-        ),
-    );
+    let method_body = proc_macro2::TokenTree::Group(proc_macro2::Group::new(
+        proc_macro2::Delimiter::Brace,
+        quote::quote! {
+            let mut reasons : Vec <&'static str > = Vec::new(); # (# method_stmts) *
+            if reasons.is_empty() { SwapDecision::Free } else {
+            SwapDecision::RequiresRestart(reasons) }
+        },
+    ));
     let expanded = quote! {
         impl HotSwapClassifier for # self_name { const FIELD_CLASSES : &'static
         [(&'static str, HotSwapClass)] = # const_array; fn classify_change(& self, new :
