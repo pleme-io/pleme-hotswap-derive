@@ -13,7 +13,7 @@ struct Config {
     #[hot_swap]
     log_level: String,
     // No #[hot_swap] / #[restart_required(...)] tag -- the exhaustiveness
-    // guarantee (theory/CALHA.md SS5.1) requires this to fail loudly
+    // guarantee requires this to fail loudly
     // instead of silently producing no decision for this field's changes.
     bind_addr: String,
 }

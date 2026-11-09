@@ -1,20 +1,19 @@
 //! The runtime types `#[derive(HotSwap)]` (in the sibling `pleme-hotswap-derive`
-//! crate) generates code against, per `theory/CALHA.md` §4/§6.2.
+//! crate) generates code against.
 //!
 //! **The derive macro itself is not yet implemented** — see that crate's
 //! `README.md`. These types are real and stable now so downstream design
 //! (and `calha`, which already depends on the shape) can be written against
 //! them ahead of the derive landing.
 
-/// A field's declared hot-swap stance. Exactly two arms — per
-/// `theory/CALHA.md` §1's finding that config-sync is a binary safe/unsafe
+/// A field's declared hot-swap stance. Exactly two arms, because
+/// config-sync is a binary safe/unsafe
 /// question, not breathe's direction-dependent 3-arm `DisruptionClass`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum HotSwapClass {
     /// Safe to swap into a running process without a restart.
     Free,
-    /// Requires a restart. `reason` is a **mandatory** string, per
-    /// `theory/CALHA.md` §5.1: it makes "structurally cold forever" vs
+    /// Requires a restart. `reason` is a **mandatory** string: it makes "structurally cold forever" vs
     /// "contingently cold, not yet re-plumbed" an auditable, committed fact
     /// instead of tribal knowledge nobody wrote down.
     RequiresRestart { reason: &'static str },

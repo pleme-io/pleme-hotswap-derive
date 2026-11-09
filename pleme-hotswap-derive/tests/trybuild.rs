@@ -1,4 +1,4 @@
-//! Proves the derive's exhaustiveness guarantee (theory/CALHA.md SS5.1)
+//! Proves the derive's exhaustiveness guarantee
 //! actually fires -- a field carrying neither `#[hot_swap]` nor
 //! `#[restart_required(reason = "...")]` fails to compile, rather than
 //! silently producing no decision for that field's changes. The pass-case

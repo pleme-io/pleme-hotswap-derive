@@ -1,6 +1,6 @@
 # pleme-hotswap-derive
 
-> Per-field compile-time-exhaustive hot-swap-safety classification for shikumi `TieredConfig` structs -- `#[derive(HotSwap)]` with `#[hot_swap]` / `#[restart_required(reason="...")]` tagging, per [`theory/CALHA.md`](https://github.com/pleme-io/theory/blob/main/CALHA.md) §4/§6.1/§6.2.
+> Per-field compile-time-exhaustive hot-swap-safety classification for shikumi `TieredConfig` structs -- `#[derive(HotSwap)]` with `#[hot_swap]` / `#[restart_required(reason="...")]` tagging.
 
 ## Status (tier-honest, never rounded up)
 
@@ -33,7 +33,7 @@ regenerate it from the spec in `gen/src/main.rs` instead.
 
 **What's still not done:** `shikumi::hotswap` (the `ArcSwap`-backed
 hot-swap config store + `Validate` trait this derive's output is meant to
-feed into, per `theory/CALHA.md` §6.3) remains unbuilt. This crate proves
+feed into) remains unbuilt. This crate proves
 the classification half of the design; the live config-store half is a
 separate, further increment.
 
